@@ -16,8 +16,7 @@ if(qtd <= 9):
     print('Voce comprou {}.Seu desconto foi de : R% {}'.format(preco, pagar))
 
 # 4.	O programa deve retornar o valor total após o desconto;
-# 5.	Deve-se utilizar estruturas if, elif e else (EXIGÊNCIA 1 de 1);
-# 6.	Colocar um exemplo de SAIDA DE CONSOLE de compra de mais de 10 und. (para mostrar que o desconto foi aplicado)
+# 5.	Estruturas if e else 
 else:
     if(qtd >= 10 and qtd <= 99):
         total = preco * qtd
