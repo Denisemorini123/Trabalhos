@@ -1,0 +1,167 @@
+
+print('Bem vindo ao controle de Estoque da Bicicletaria do {}' \n.format(nome))
+print('Escolha a opção desejada')
+
+from time import sleep
+pecas = []
+
+def CadastrarPeca(codigo, nome, fabricante, valor):
+    propiedades = {}
+    propiedades['codigo'] = codigo
+    propiedades['nome'] = nome
+    propiedades['fabricante'] = fabricante
+    propiedades['valor'] = valor
+    pecas.append(propiedades.copy())
+    propiedades.clear()
+
+
+def ToFloat():
+    #= verificação do preço
+    while True:
+        preco = input('\033[32mPor favor entre com o VALOR ( R$ ) da peça: \033[m').replace(',', '.')
+        try:
+            float(preco)
+        except Exception:
+            print('\033[31mValor invalido.\033[m')
+            sleep(0.5)
+        else:
+            print(f'\033[33m{"Cadastrada Com Sucesso":=^45}\033[m')
+            return preco
+
+
+def TotasPecas():
+    #= mostra toda a lista de dicionarios
+    print('_'*45)
+    print(f'\033[32m{"PEÇAS CADASTRADAS":^45}\033[m')
+    print('_'*45)
+    cont = 0
+    for item in pecas:
+        print(
+            f"\033[34m{cont}- {item['codigo']:15} {item['nome']:15} {item['fabricante']:15} R${item['valor']}\033[m")
+        cont += 1
+
+
+def Consultar(text):
+    #= verificação se a esolha esta no range do len da lista "pecas"
+    Totpecas = len(pecas)
+    while True:
+        try:
+            resp2 = int(input(text))
+        except (TypeError, Exception):
+            print('\033[31mERRO... Opção invalida\033[m')
+            sleep(0.5)
+        else:
+            if resp2 in range(Totpecas):
+                return resp2
+            else:
+                print('\033[31mERRO... Opção invalida\033[m')
+
+
+def opc2():
+    # = Opçoes
+    while True:
+        print('_'*45)
+        print('\033[33m1)    Consultar Todas as Peças')
+        print("2)    Consulta Peças por Código")
+        print("3)    Consulta Peças por Fabricante")
+        print('4)    Retornar\033[m')
+        # = Consultar Peça:
+        while True:
+            try:
+                resp2 = int(input('\033[32mDigite sua opção: \033[m'))
+            except (TypeError, Exception):
+                print('\033[31mERRO... Opção invalida\033[m')
+            else:
+                if resp2 in [1, 2, 3, 4]:
+                    break
+                else:
+                    print('\033[31mERRO... Opção invalida\033[m')
+
+        if resp2 == 1:
+            # =  Consultar Todas as Peças:
+            if len(pecas) != 0:
+                TotasPecas()
+            else:
+                print(f'\033[31m{"Lista Vazia!":=^45}\033[m')
+
+        elif resp2 == 2:
+            # = Consulta Peças por Código:
+
+            # = Consulta Peças por Fabricante:
+            if len(pecas) != 0:
+                fab_nome = str(input('\033[33mSelecione a peça que deseja visualizar: \033[m'))
+                cont = 0
+                print('_'*45)
+                for item in pecas:
+                    if fab_nome == item['codigo']:
+                        cont += 1
+                        print(
+                            f"\033[34m{item['codigo']:15}  {item['nome']:15} {item['fabricante']:15} R${item['valor']}\033[m")
+                if cont == 0:
+                    print('\033[31mNão exite peças cadastradas com esse codigo'
+                          ''
+                          '\033[m')
+            else:
+                print(f'\033[31m{"Lista Vazia!":=^45}\033[m')
+
+
+        elif resp2 == 3:
+            # = Consulta Peças por Fabricante:
+            if len(pecas) != 0:
+                fab_nome = str(input('\033[33mNome do fabricante: \033[m'))
+                cont = 0
+                print('_'*45)
+                for item in pecas:
+                    if fab_nome == item['fabricante']:
+                        cont += 1
+                        print(
+                            f"\033[34m{item['nome']:15} {item['fabricante']:15} R${item['valor']}\033[m")
+                if cont == 0:
+                    print('\033[31mNão exite peças cadastradas com esse fabricante\033[m')
+            else:
+                print(f'\033[31m{"Lista Vazia!":=^45}\033[m')
+
+        elif resp2 == 4:
+            break
+
+
+while True:
+    print('1.  Cadastrar Peças')
+    print("2.  Consultar Peças")
+    print("3.  Remover Peças")
+    print("4.  Sair")
+    # = autenticação de reposta:
+    while True:
+        try:
+            resp = int(input('\033[32mDigite sua opção: \033[m'))
+        except (TypeError, Exception):
+            print('\033[31mERRO... Opção invalida\033[m')
+        else:
+            if resp in [1, 2, 3, 4]:
+                break
+            else:
+                print('\033[31mERRO... Opção invalida\033[m')
+
+    if resp == 1:
+        # =  Cadastrar Peça:
+        codigo = str(input('\033[32mPor favor entre com codigo da peça: \033[m')).strip()
+        nome = str(input('\033[32mPor favor entre com nome da peça: \033[m')).strip()
+        fabricante = str(input('\033[32mPor favor entre com nome do fabricante: \033[m')).strip()
+        preco = ToFloat()
+        CadastrarPeca(codigo, nome, fabricante, preco)
+
+    elif resp == 2:
+        opc2()
+
+    elif resp == 3:
+        # = Remover Peça:
+        if len(pecas) != 0:
+            TotasPecas()
+            index = Consultar('\033[32mDigite o Codigo que deseja remover.\033[m')
+            del pecas[index]
+        else:
+            print(f'\033[31m{"Lista Vazia!":=^45}\033[m')
+    elif resp == 4:
+        # = Sair
+        print('\033[33mSaindo...')
+        break
