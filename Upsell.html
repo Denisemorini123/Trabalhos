@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Obrigado pela sua compra!</title>
+  <style>
+    :root { --bg:#0f172a; --card:#111827; --text:#e5e7eb; --muted:#9ca3af; --ok:#22c55e; --warn:#f59e0b; --brand:#7c3aed; }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b1220,#0f172a);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial;color:var(--text);}
+    .container{max-width:720px;margin:48px auto;padding:0 16px}
+    .card{background:rgba(17,24,39,.7);backdrop-filter:saturate(140%) blur(6px);border:1px solid rgba(148,163,184,.15);border-radius:16px;padding:24px}
+    h1{font-size:28px;margin:0 0 8px}
+    p{color:var(--muted);margin:6px 0 0}
+    .badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;color:#052e16;background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.35)}
+    .section{margin-top:18px}
+    .code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;background:#0b1220;border:1px solid rgba(148,163,184,.15);border-radius:10px;padding:10px;color:#cbd5e1;overflow:auto}
+    .alert{margin-top:16px;padding:12px 14px;border-radius:12px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#fde68a}
+    .success{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.35);color:#bbf7d0}
+    .footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+    .btn{display:inline-block;margin-top:10px;background:linear-gradient(90deg,#7c3aed,#06b6d4);border:none;color:#fff;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>🎉 Obrigado pela sua compra!</h1>
+      <p>Sua compra foi processada com sucesso. Se quiser, aproveite esta oferta especial logo abaixo.</p>
+      <div class="section">
+        <span id="statusBadge" class="badge">Preparando Upsell…</span>
+        <div id="fpayWarning" class="alert hidden">⚠️ Esta página precisa ser aberta com o parâmetro <strong>fpay</strong> na URL. Ex.: <span class="code">/obrigado?fpay=SEU_HASH</span></div>
+      </div>
+
+      <!-- Local onde o iframe/botão do upsell aparecerá automaticamente -->
+      <div id="upsellMount" class="section"></div>
+
+      <div id="log" class="section code" style="max-height:160px"></div>
+
+      <div class="footer">Dica: caso não apareça o botão do upsell, atualize a página (Ctrl/⌘ + Shift + R). Certifique-se de que a URL contém <strong>fpay</strong>.</div>
+    </div>
+  </div>
+
+  <script>
+    // Utilidades
+    const log = (msg) => {
+      const el = document.getElementById('log');
+      const time = new Date().toLocaleTimeString();
+      el.innerText += `[${time}] ${msg}\n`;
+      el.scrollTop = el.scrollHeight;
+    };
+    const qp = new URLSearchParams(location.search);
+    const fpay = qp.get('fpay');
+
+    if (!fpay) {
+      document.getElementById('fpayWarning').classList.remove('hidden');
+      log('URL sem ?fpay=HASH — upsell pode não iniciar.');
+    } else {
+      log(`fpay detectado: ${fpay}`);
+    }
+
+    // Feedback visual do status
+    const badge = document.getElementById('statusBadge');
+    const setBadge = (text, ok=false) => {
+      badge.textContent = text;
+      badge.classList.toggle('success', ok);
+    };
+  </script>
+
+  <!-- Pepper Upsell - Nova Versão com Iframe -->
+  <!-- Substitua o valor do data-upsell-hash se quiser trocar a oferta. -->
+  <script
+    src="https://app.pepperpay.com.br/js/pepper-upsell-embed.js"
+    data-upsell-hash="uelzdslfdi">
+  </script>
+
+  <script>
+    // Eventos opcionais para depuração/telemetria simples
+    window.addEventListener('pepperUpsellPaymentWindowOpened', function () {
+      log('Janela de pagamento (PIX/Boleto) aberta pelo upsell.');
+      setBadge('Aguardando pagamento (PIX/Boleto)…');
+    });
+    window.addEventListener('pepperUpsellSuccess', function (e) {
+      log('Upsell aprovado! Hash da transação: ' + (e?.detail?.transactionHash || 'indisponível'));
+      setBadge('Upsell aprovado! ✅', true);
+    });
+
+    // Caso o script falhe em carregar (CSP, rede, etc.), avisa no log
+    window.addEventListener('error', (ev) => {
+      if (String(ev?.filename).includes('pepper-upsell-embed')) {
+        setBadge('Falha ao carregar script do upsell');
+        log('Não foi possível carregar o script https://app.pepperpay.com.br/js/pepper-upsell-embed.js');
+      }
+    }, true);
+  </script>
+</body>
+</html>
